@@ -39,12 +39,16 @@ class Classroom(models.Model):
         return reverse('classrooms_detail', kwargs={'pk': self.id})
 
 class Profile(models.Model):
-  is_teacher = models.BooleanField()
-  user = models.OneToOneField(User, on_delete=models.CASCADE)
+    is_teacher = models.BooleanField()
+    profile_photo = models.ImageField(upload_to='profile_pic', default='')
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+
+    def get_absolute_url(self):
+        return reverse('classrooms_detail', kwargs={'pk': self.id})
 
 class Photo(models.Model):
     url=models.CharField(max_length=200)
-    profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    profile = models.OneToOneField(Profile, on_delete=models.CASCADE)
 
     def __str__(self):
         return f'Photo for user: {self.profile_id} @{self.url}'

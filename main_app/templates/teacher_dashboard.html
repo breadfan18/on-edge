@@ -6,9 +6,25 @@
     <div class="col s12">
         <h2 class="dashHeader">{{ user.first_name }}'s Dashboard</h2>
         <div class="card horizontal">
-            <div class="card-image">
-                <img src="https://i.imgur.com/QPhMDNr.png">
-            </div>
+            {%  if profile.profile_photo %}
+                <div class="card-image">
+                    <img src="" alt="">
+                </div>
+            {% else %}
+               <div>
+                <div class="card-image">  
+                    <img src="https://i.imgur.com/QW56bUY.png" alt="">
+                </div>
+               
+                <form action="" enctype="multipart/form-data" method="POST" class="card-panel">
+                    {% csrf_token %}
+                    <input type="file" name="photo-file">
+                    <br><br>
+                    <input type="submit" class="btn" value="Upload Photo">
+                </form>
+               </div>
+               
+            {% endif %}
             <div class="card-stacked">
                 <div class="card-content">
                     <h4>{{ user.first_name }} {{ user.last_name }}</h4>

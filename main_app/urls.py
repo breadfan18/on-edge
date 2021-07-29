@@ -39,7 +39,7 @@ urlpatterns = [
     path('dashboard/', views.dashboard, name='dashboard'), 
 
     # Route for adding photo
-    path('profile/<int:profile_id>/add_photo', views.add_photo, name='add_photo')
+    path('dashboard/<int:id>/add_photo', views.add_photo, name='add_photo')
 
 
     

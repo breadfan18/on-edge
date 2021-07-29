@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from .models import Assignment, Classroom, Student, Photo
+from .models import Assignment, Classroom, Student, Photo, Profile
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic import ListView, DetailView
 from django.contrib.auth import login
@@ -9,6 +9,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import ProfileForm
 import uuid
 import boto3
+
+from django.contrib.auth.models import User
 
 S3_BASE_URL = 'https://s3-us-west-1.amazonaws.com/'
 BUCKET = 'onedge-swaroop'
@@ -98,7 +100,7 @@ def signup(request):
     if request.method == 'POST':
         user_form = UserCreationForm(request.POST)
         profile_form = ProfileForm(request.POST)
-        if user_form.is_valid() and profile_form.is_valid():
+        if user_form.is_valid() and profile_form.is_valid(): 
             user = user_form.save()
             profile = profile_form.save(commit=False)
             profile.user = user
@@ -150,20 +152,37 @@ class StudentsDelete(LoginRequiredMixin, DeleteView):
 
 @login_required
 def dashboard(req):
-  user_type = None
-  assignments = Assignment.objects.filter(user=req.user)
-  classrooms = Classroom.objects.filter(user=req.user)
+    user_type = None
+    assignments = Assignment.objects.filter(user=req.user)
+    classrooms = Classroom.objects.filter(user=req.user)
 
-  if req.user.profile.is_teacher:
-    user_type = 'teacher'
-  else:
-    user_type = 'student'
-  return render(req, f'{user_type}_dashboard.html', {
-        'assignments': assignments,
-        'classrooms': classrooms,
-        'user': req.user
-    })
+    if req.user.profile.is_teacher:
+        user_type = 'teacher'
+    else:
+        user_type = 'student'
+    return render(req, f'{user_type}_dashboard.html', {
+            'assignments': assignments,
+            'classrooms': classrooms,
+            'user': req.user,
+        })
 
 
 @login_required
-def add_photo()
+def add_photo(req, id):
+    photo_file = req.FILES.get('photo-file', None)
+    profile = Profile.objects.filter(id=id)
+    if photo_file:
+        s3 = boto3.client('s3')
+        key = uuid.uuid4.hex[:6] + photo_file.name[photo_file.name.rfind('.'):]
+        try:
+            s3.upload_fileobj(photo_file, BUCKET, key)
+            url = f'{S3_BASE_URL}{BUCKET}/{key}'
+            photo = Photo(url=url, id=id)
+            photo.save()
+        except:
+            print('An error occurrred while uploading the photo')
+    return render(req, 'dashboard.html', {
+        'profile': profile
+    })
+            
+        
