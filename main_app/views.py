@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from .models import Assignment, Classroom, Student
+from .models import Assignment, Classroom, Student, Photo
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic import ListView, DetailView
 from django.contrib.auth import login
@@ -7,6 +7,11 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import ProfileForm
+import uuid
+import boto3
+
+S3_BASE_URL = 'https://s3-us-west-1.amazonaws.com/'
+BUCKET = 'onedge-swaroop'
 
 # Create your views here.
 def home(req):
@@ -159,11 +164,6 @@ def dashboard(req):
         'user': req.user
     })
 
-# def dashboard_index(req):
-#     assignments = Assignment.objects.filter(user=req.user)
-#     classrooms = Classroom.objects.filter(user=req.user)
-#     return render(req, 'dashboard.html', {
-#         'assignments': assignments,
-#         'classrooms': classrooms,
-#         'user': req.user
-#     })
+
+@login_required
+def add_photo()
